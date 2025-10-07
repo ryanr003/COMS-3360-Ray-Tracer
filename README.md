@@ -1,2 +1,89 @@
-# COMS-3360-Ray-Tracer
-Ray Tracer Repository for COMS 3360: Introduction to Computer Graphics 
+
+# Ray Tracer Project
+
+A physically-based ray tracing renderer implementing features from the "Ray Tracing in One Weekend" series. Rendered image based on Glinda's pink bubble from the movie & musical: Wicked.  
+
+## Implemented Requirements
+
+### Complete
+- **Camera**: Configurable position (lookfrom/lookat), orientation, and vertical FOV
+- **Anti-aliasing**: 100 samples per pixel with gamma correction
+- **Ray/Sphere Intersections**: Quadratic solver with UV coordinates
+- **Ray/Triangle Intersections**: Möller-Trumbore algorithm
+- **BVH Acceleration**: Bounding Volume Hierarchy with AABB
+- **Materials**: Lambertian (diffuse), Metal (specular), Dielectric (glass), Emissive (lights)
+- **Mesh Loading**: OBJ file parser with automatic triangulation
+
+### Incomplete
+- **Texture Loading**: Framework exists, but image file loading (PNG/JPEG) not yet implemented
+- **Textured Geometry**: UV coordinates work, but only procedural textures (solid color, checker) available
+
+## Building and Running on Pyrite
+
+### Quick Start
+```bash
+# Connect to Pyrite
+ssh your_netid@pyrite.cs.iastate.edu
+
+# Navigate to project
+cd path/to/the/raytracer
+
+# Build and run
+make (ignore warnings)
+./raytracer (Progress bar will be shown with render, current render time: 30 sec.)
+```
+
+### Viewing Output
+```bash
+# Copy from Pyrite to local machine
+scp your_netid@pyrite.cs.iastate.edu:path/to/output.ppm 
+
+# Optional: Convert to PNG (requires ImageMagick)
+convert output.ppm output.png
+```
+
+### Makefile Targets
+- `make` - Build executable
+- `make clean` - Remove compiled files
+- `make run` - Build and run
+
+## Configuration
+
+If needed, edit `main.cpp` to adjust:
+- **Image**: `image_width`, `image_height`
+- **Quality**: `samples_per_pixel`, `max_depth`
+- **Camera**: `lookfrom`, `lookat`, `vfov`
+- **Scene**: Add/modify objects and materials
+
+## Project Structure (As of 10/6)
+
+```
+raytracer/
+├── main.cpp           # Rendering loop and scene
+├── vec3.h             # Vector math
+├── ray.h              # Ray class
+├── camera.h           # Camera
+├── sphere.h           # Sphere geometry
+├── triangle.h         # Triangle geometry
+├── mesh.h             # OBJ loader
+├── material.h/cpp     # Material system
+├── texture.h          # Texture framework
+├── aabb.h             # Bounding boxes
+├── bvh.h              # BVH acceleration
+├── hittable.h         # Hittable interface
+└── Makefile           # Build config
+```
+
+## Performance
+
+- Default settings (800×450, 100 samples): 30 sec.
+- Lower `samples_per_pixel` for faster previews
+- BVH provides significant speedup for complex scenes
+
+## Default Scene
+
+- Glass bubble (Glinda-inspired) with inner glow
+- Metallic sparkle particles
+- Multiple light sources
+- Demonstration triangle through wand (in-progress)
+- Ground/flat plane
