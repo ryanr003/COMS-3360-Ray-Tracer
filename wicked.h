@@ -26,7 +26,7 @@ inline double degrees_to_radians(double degrees) {
 
 
 
-// REQUIREMENT: Parallelization - random number generation
+// REQUIREMENT: Parallelization, random number generation
 inline double random_double() {
     static thread_local std::uniform_real_distribution<double> distribution(0.0, 1.0);
     static thread_local std::mt19937 generator;
@@ -43,7 +43,7 @@ inline int random_int(int min, int max) {
 
 
 
-// Common Headers:
+// Common Headers
 #include "vec3.h"
 #include "color.h"
 #include "ray.h"
