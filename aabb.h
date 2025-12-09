@@ -1,51 +1,110 @@
 #ifndef AABB_H
 #define AABB_H
 
-#include "ray.h"
-#include "vec3.h"
-#include <algorithm>
+#include "wicked.h"
 
+
+// REQUIREMENT: Spatial subdivision acceleration structure (BVH uses AABBs)
+// Axis-Aligned Bounding Box for acceleration
 class aabb {
 public:
-    point3 minimum;
-    point3 maximum;
+    interval x, y, z; // Min/max bounds
+
 
     aabb() {}
-    aabb(const point3& a, const point3& b) : minimum(a), maximum(b) {}
 
-    point3 min() const { return minimum; }
-    point3 max() const { return maximum; }
 
-    bool hit(const ray& r, double t_min, double t_max) const {
-        for (int a = 0; a < 3; a++) {
-            auto invD = 1.0 / r.direction()[a];
-            auto t0 = (minimum[a] - r.origin()[a]) * invD;
-            auto t1 = (maximum[a] - r.origin()[a]) * invD;
-            if (invD < 0.0)
-                std::swap(t0, t1);
-            t_min = t0 > t_min ? t0 : t_min;
-            t_max = t1 < t_max ? t1 : t_max;
-            if (t_max <= t_min)
+    // Three intervals
+    aabb(const interval& x, const interval& y, const interval& z)
+        : x(x), y(y), z(z) {}
+    
+
+    aabb(const point3& a, const point3& b) {
+        x = (a[0] <= b[0]) ? interval(a[0], b[0]) : interval(b[0], a[0]);
+        y = (a[1] <= b[1]) ? interval(a[1], b[1]) : interval(b[1], a[1]);
+        z = (a[2] <= b[2]) ? interval(a[2], b[2]) : interval(b[2], a[2]);
+    }
+    
+    aabb(const aabb& box0, const aabb& box1) {
+        x = interval(box0.x, box1.x);
+        y = interval(box0.y, box1.y);
+        z = interval(box0.z, box1.z);
+    }
+
+
+
+    // Get interval for specified axis
+    const interval& axis_interval(int n) const {
+        if (n == 1) return y;
+        if (n == 2) return z;
+        return x;
+    }
+
+
+
+    // Testing if ray intersects the bounding box
+    bool hit(const ray& r, interval ray_t) const {
+        const point3& ray_orig = r.origin();
+        const vec3& ray_dir = r.direction();
+
+        for (int axis = 0; axis < 3; axis++) {
+            const interval& ax = axis_interval(axis);
+            const double adinv = 1.0 / ray_dir[axis];
+
+            auto t0 = (ax.min - ray_orig[axis]) * adinv;
+            auto t1 = (ax.max - ray_orig[axis]) * adinv;
+
+            if (t0 < t1) {
+                if (t0 > ray_t.min) ray_t.min = t0;
+                if (t1 < ray_t.max) ray_t.max = t1;
+            } else {
+                if (t1 > ray_t.min) ray_t.min = t1;
+                if (t0 < ray_t.max) ray_t.max = t0;
+            }
+
+            if (ray_t.max <= ray_t.min)
                 return false;
         }
         return true;
     }
+
+
+
+
+    // To avoid zero-thickness boxes
+    aabb pad() {
+        double delta = 0.0001;
+        interval new_x = (x.size() >= delta) ? x : x.expand(delta);
+        interval new_y = (y.size() >= delta) ? y : y.expand(delta);
+        interval new_z = (z.size() >= delta) ? z : z.expand(delta);
+        return aabb(new_x, new_y, new_z);
+    }
+
+    int longest_axis() const {
+        if (x.size() > y.size())
+            return x.size() > z.size() ? 0 : 2;
+        else
+            return y.size() > z.size() ? 1 : 2;
+    }
+
+    static const aabb empty, universe;
 };
 
-aabb surrounding_box(aabb box0, aabb box1) {
-    point3 small(
-        std::min(box0.min().x(), box1.min().x()),
-        std::min(box0.min().y(), box1.min().y()),
-        std::min(box0.min().z(), box1.min().z())
-    );
 
-    point3 big(
-        std::max(box0.max().x(), box1.max().x()),
-        std::max(box0.max().y(), box1.max().y()),
-        std::max(box0.max().z(), box1.max().z())
-    );
+const aabb aabb::empty = aabb(interval::empty, interval::empty, interval::empty);
+const aabb aabb::universe = aabb(interval::universe, interval::universe, interval::universe);
 
-    return aabb(small, big);
+
+
+// Vector offset:
+inline aabb operator+(const aabb& bbox, const vec3& offset) {
+    return aabb(interval(bbox.x.min + offset.x(), bbox.x.max + offset.x()),
+                interval(bbox.y.min + offset.y(), bbox.y.max + offset.y()),
+                interval(bbox.z.min + offset.z(), bbox.z.max + offset.z()));
+}
+
+inline aabb operator+(const vec3& offset, const aabb& bbox) {
+    return bbox + offset;
 }
 
 #endif
