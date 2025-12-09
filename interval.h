@@ -6,6 +6,7 @@ class interval {
 public:
     double min, max;
 
+
     interval() : min(+infinity), max(-infinity) {}
     interval(double min, double max) : min(min), max(max) {}
     interval(const interval& a, const interval& b) {
@@ -32,6 +33,7 @@ public:
     }
 
 
+
     // Expand interval by delta amount
     interval expand(double delta) const {
         auto padding = delta/2;
@@ -40,6 +42,7 @@ public:
 
     static const interval empty, universe;
 };
+
 
 const interval interval::empty = interval(+infinity, -infinity);
 const interval interval::universe = interval(-infinity, +infinity);
