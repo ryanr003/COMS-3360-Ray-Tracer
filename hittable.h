@@ -27,6 +27,7 @@ public:
 
 
 
+
 // REQUIREMENT: Ray/sphere and ray/triangle intersections
 class hittable {
 public:
@@ -35,6 +36,7 @@ public:
     virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
     virtual aabb bounding_box() const = 0;
 };
+
 
 
 
@@ -64,6 +66,7 @@ private:
     vec3 offset;
     aabb bbox;
 };
+
 
 
 
@@ -102,6 +105,7 @@ public:
 
         bbox = aabb(min, max);
     }
+
 
 
 

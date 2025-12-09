@@ -16,7 +16,7 @@ $(TARGET): $(SRCS) $(HEADERS)
 
 render: $(TARGET)
 	./$(TARGET) > $(OUTPUT)
-	@echo "Rendering complete! Output saved to $(OUTPUT)"
+	@echo "Rendering complete! Output.ppm saved to $(OUTPUT)"
 
 
 clean:
@@ -32,7 +32,7 @@ view: $(OUTPUT)
 	elif command -v xdg-open > /dev/null; then \
 		xdg-open $(OUTPUT); \
 	else \
-		echo "No suitable image viewer found. Please open $(OUTPUT) manually."; \
+		echo "No image viewer found. Please open $(OUTPUT) manually."; \
 	fi
 
-.PHONY: all render clean view help
+.PHONY: all render clean view

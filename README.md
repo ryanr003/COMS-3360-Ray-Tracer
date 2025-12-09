@@ -1,6 +1,6 @@
 # I have been Traced for Good: A very Wicked Ray Tracer!
 # By: Ryan Riebesehl
-# COMS 3360
+# COMS 3360: Intorduction to Computer Graphics
 
 Fully renderable ray tracer in C++ inspired by Glindas pink bubble from the musical and movie: *Wicked*.
 
@@ -8,7 +8,7 @@ Fully renderable ray tracer in C++ inspired by Glindas pink bubble from the musi
 
 ## Requirements Met
 
-All requirements implemented with `// REQUIREMENT:` comments throughout the code:
+All requirements implemented with `// REQUIREMENT:` comments throughout the code (so it's eiaser for you to find requirments in the code):
 
 **Core Features (Top List from Piazza):**
 - Camera with configurable position, orientation, FOV (`camera.h`)
@@ -20,8 +20,9 @@ All requirements implemented with `// REQUIREMENT:` comments throughout the code
 - BVH spatial subdivision acceleration structure (`bvh.h`)
 - Diffuse, specular, dielectric materials (`material.h`)
 - Emissive materials/lights (`material.h`)
+- Was in progress of implementing/loading triangle meshes, but was removed in the requirments as said in class.
 
-**Addational Features (85 extra pts):**
+**Addational Features (Bottom List from Piazza) (85 extra pts):**
 - High dynamic range (10 pts) - `color.h`
 - Volume rendering (10 pts) - `bvh.h` 
 - Quads (10 pts) - `quad.h`
@@ -72,7 +73,7 @@ ssh <netid>@pyrite.cs.iastate.edu
 tar -xvzf RayTracer.tar.gz
 cd path/to/RayTracer
 make
-make render      # Will generate output.ppm
+make render      # Will generate output.ppm in RayTracer directory
 ```
 
 ### Local Build
@@ -82,14 +83,15 @@ make render       # Render
 make clean        # Clean files
 ```
 
-## Scene Description
+## Output Description
 
-The scene includes:
-- Main, dual-layer bubble (glass outer, textured inner) 
-- Motion-blurred glowing sparkles (lights)
+The output/scene includes:
+- A main, dual-layer bubble (glass outer, textured inner) 
+- Motion-blurred glowing sparkles (with lights)
 - 5-pointed star from textured triangles
 - Metal sphere (small one in front), sparkle-textured sphere (far right), Perlin noise sphere (far left)
-- Volumetric mist in main bubble, emerald checker ground
+- Volumetric mist in main bubble
+- Emerald checker ground
 - Dark gold platform platform quad
 
 ## Configuration

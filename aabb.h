@@ -96,6 +96,7 @@ const aabb aabb::universe = aabb(interval::universe, interval::universe, interva
 
 
 
+
 // Vector offset:
 inline aabb operator+(const aabb& bbox, const vec3& offset) {
     return aabb(interval(bbox.x.min + offset.x(), bbox.x.max + offset.x()),

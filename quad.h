@@ -18,6 +18,7 @@ public:
     }
 
 
+
     // Bounding box containing all four corners of the quad
     virtual void set_bounding_box() {
         auto bbox_diagonal1 = aabb(Q, Q + u + v);
@@ -26,6 +27,8 @@ public:
     }
 
     aabb bounding_box() const override { return bbox; }
+
+
 
 
 
@@ -59,6 +62,8 @@ public:
 
 
 
+
+
     // Check if barycentric coordiantes are inside quad
     virtual bool is_interior(double a, double b, hit_record& rec) const {
         interval unit_interval = interval(0, 1);
@@ -80,6 +85,7 @@ private:
     vec3 normal;
     double D;
 };
+
 
 
 

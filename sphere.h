@@ -13,6 +13,8 @@ public:
     }
 
 
+
+
     // REQUIREMENT: Motion blur, "moving" sphere
     sphere(const point3& center1, const point3& center2, double radius, shared_ptr<material> mat)
         : center1(center1), radius(std::fmax(0,radius)), mat(mat), is_moving(true) {
@@ -22,6 +24,8 @@ public:
         bbox = aabb(box1, box2);
         center_vec = center2 - center1;
     }
+
+
 
 
     // Test ray-sphere intersection with quadratic fromula
@@ -70,6 +74,8 @@ private:
     point3 sphere_center(double time) const {
         return center1 + time*center_vec;
     }
+
+
 
     // REQUIREMENT: UV mapping for textured spheres
     static void get_sphere_uv(const point3& p, double& u, double& v) {

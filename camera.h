@@ -32,6 +32,7 @@ public:
 
 
 
+
     void render(const hittable& world) {
         initialize();
 
@@ -69,6 +70,7 @@ public:
 
 
 
+
         // Distributes row across threads
         int rows_per_thread = image_height / num_threads;
         for (int t = 0; t < num_threads; t++) {
@@ -82,6 +84,7 @@ public:
         }
 
 
+
         // Write out all pixels
         for (int j = 0; j < image_height; j++) {
             for (int i = 0; i < image_width; i++) {
@@ -91,6 +94,7 @@ public:
 
         std::clog << "\rDone.                 \n";
     }
+
 
 
 
@@ -108,6 +112,7 @@ private:
 
 
 
+
     // Calculates all camera parametes
     void initialize() {
         image_height = int(image_width / aspect_ratio);
@@ -118,11 +123,13 @@ private:
         center = lookfrom;
 
 
+
         // Viewport dimensions
         auto theta = degrees_to_radians(vfov);
         auto h = std::tan(theta/2);
         auto viewport_height = 2 * h * focus_dist;
         auto viewport_width = viewport_height * (double(image_width)/image_height);
+
 
 
         // Camera Vectors
@@ -132,6 +139,7 @@ private:
 
         vec3 viewport_u = viewport_width * u;
         vec3 viewport_v = viewport_height * -v;
+
 
 
         // Pixel spacing
@@ -146,6 +154,7 @@ private:
         defocus_disk_v = v * defocus_radius;
     }
     
+
     
 
     // Generates random ray for pixel
@@ -165,6 +174,7 @@ private:
 
 
 
+
     // Random offset within square for anti-aliasing
     vec3 sample_square() const {
         return vec3(random_double() - 0.5, random_double() - 0.5, 0);
@@ -174,6 +184,7 @@ private:
         auto p = random_in_unit_disk();
         return center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
     }
+
 
 
 

@@ -5,6 +5,7 @@
 #include "texture.h"
 #include "hittable.h"
 
+
 // REQUIREMENT: Specular, diffuse, and dielectric materials
 class material {
 public:
@@ -15,12 +16,12 @@ public:
         return false;
     }
 
-
-    // REQUIREMENT: Emissive materials (lights)
     virtual color emitted(double u, double v, const point3& p) const {
         return color(0,0,0);
     }
 };
+
+
 
 
 
@@ -48,6 +49,8 @@ private:
 
 
 
+
+
 // REQUIREMENT: Specular (metal) material
 class metal : public material {
 public:
@@ -66,6 +69,8 @@ private:
     color albedo;
     double fuzz;
 };
+
+
 
 
 
@@ -96,6 +101,7 @@ public:
     }
 
 
+
 private:
     double refraction_index;
 
@@ -105,6 +111,8 @@ private:
         return r0 + (1-r0)*std::pow((1 - cosine),5);
     }
 };
+
+
 
 
 
@@ -121,6 +129,7 @@ public:
 private:
     shared_ptr<texture> tex;
 };
+
 
 
 

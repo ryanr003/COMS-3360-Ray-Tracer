@@ -18,6 +18,7 @@ public:
     }
 
 
+
     // REQUIREMENT: Normal interpolation for smooth shading
     triangle(const point3& v0, const point3& v1, const point3& v2,
              const vec3& n0, const vec3& n1, const vec3& n2,
@@ -31,6 +32,8 @@ public:
         
         set_bounding_box();
     }
+
+
 
 
 
@@ -50,6 +53,7 @@ public:
     }
 
     aabb bounding_box() const override { return bbox; }
+
 
 
 
@@ -84,6 +88,8 @@ public:
         rec.p = r.at(t);
         
 
+
+
         // REQUIREMENT: Normal interpolation for smooth shading
         if (smooth_shading) {
             double w = 1.0 - u - v;  // thrid barycentric coordinate
@@ -99,7 +105,6 @@ public:
 
         return true;
     }
-
 
 
 

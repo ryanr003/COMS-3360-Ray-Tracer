@@ -20,6 +20,7 @@ public:
     }
 
 
+
     // Tests ray intersection with all objects, return closest hit
     bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
         hit_record temp_rec;
@@ -36,6 +37,7 @@ public:
 
         return hit_anything;
     }
+
 
     // Bounding box containing all objects
     aabb bounding_box() const override { return bbox; }

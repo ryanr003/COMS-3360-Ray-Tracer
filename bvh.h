@@ -50,6 +50,7 @@ public:
 
 
 
+
     // Test ray intersection
     bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
         if (!bbox.hit(r, ray_t))
@@ -62,6 +63,7 @@ public:
     }
 
     aabb bounding_box() const override { return bbox; }
+
 
 
 
@@ -98,7 +100,8 @@ private:
 
 
 
-// REQUIREMENT: Volume rendering (constant medium for smoke/clouds)
+
+// REQUIREMENT: Volume rendering (constant medium for mist/smoke)
 class constant_medium : public hittable {
 public:
     constant_medium(shared_ptr<hittable> boundary, double density, shared_ptr<texture> tex)
@@ -108,6 +111,8 @@ public:
     constant_medium(shared_ptr<hittable> boundary, double density, const color& albedo)
         : boundary(boundary), neg_inv_density(-1/density),
           phase_function(make_shared<isotropic>(albedo)) {}
+
+
 
 
 

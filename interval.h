@@ -32,6 +32,7 @@ public:
     }
 
 
+
     // Expand interval by delta amount
     interval expand(double delta) const {
         auto padding = delta/2;

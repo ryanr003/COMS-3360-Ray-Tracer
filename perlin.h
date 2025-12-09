@@ -28,6 +28,8 @@ public:
 
 
 
+
+
     // Generates perlin noise value at point p [-1,1]
     double noise(const point3& p) const {
         auto u = p.x() - std::floor(p.x());
@@ -54,6 +56,7 @@ public:
 
 
 
+
     // generate turbulence (noise)
     double turb(const point3& p, int depth = 7) const {
         auto accum = 0.0;
@@ -69,6 +72,9 @@ public:
 
         return std::fabs(accum);
     }
+
+
+
 
 
 
@@ -103,7 +109,10 @@ private:
 
 
 
-    // Trilinear interpolation with dot product
+
+
+
+    // Interpolation with dot product
     static double perlin_interp(const vec3 c[2][2][2], double u, double v, double w) {
         auto uu = u*u*(3-2*u);
         auto vv = v*v*(3-2*v);

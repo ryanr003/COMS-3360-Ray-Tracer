@@ -31,6 +31,7 @@ private:
 
 
 
+
 // REQUIREMENT: Texture loading from files
 class image_texture : public texture {
 public:
@@ -57,6 +58,8 @@ public:
             stbi_image_free(data);
         }
     }
+
+
 
 
 
@@ -91,6 +94,8 @@ private:
 
 
 
+
+
 // 3D floor checker pattern alternating between two textures
 class checker_texture : public texture {
 public:
@@ -116,6 +121,7 @@ private:
     shared_ptr<texture> even;
     shared_ptr<texture> odd;
 };
+
 
 
 

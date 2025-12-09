@@ -40,6 +40,7 @@ public:
     }
 
 
+
     // Vector length
     double length() const {
         return std::sqrt(length_squared());
@@ -55,6 +56,7 @@ public:
     }
 
 
+
     // Random vector generation
     static vec3 random() {
         return vec3(random_double(), random_double(), random_double());
@@ -66,6 +68,7 @@ public:
 };
 
 using point3 = vec3;
+
 
 
 
@@ -100,12 +103,14 @@ inline vec3 operator/(const vec3& v, double t) {
 }
 
 
+
 // Dot product
 inline double dot(const vec3& u, const vec3& v) {
     return u.e[0] * v.e[0]
          + u.e[1] * v.e[1]
          + u.e[2] * v.e[2];
 }
+
 
 
 // Cross product
@@ -116,10 +121,12 @@ inline vec3 cross(const vec3& u, const vec3& v) {
 }
 
 
+
 // Normalize vector to unit length
 inline vec3 unit_vector(const vec3& v) {
     return v / v.length();
 }
+
 
 
 // Rejection sampling
@@ -133,6 +140,7 @@ inline vec3 random_unit_vector() {
 }
 
 
+
 // Random vector on hemisphere oriented with normal
 inline vec3 random_on_hemisphere(const vec3& normal) {
     vec3 on_unit_sphere = random_unit_vector();
@@ -141,6 +149,7 @@ inline vec3 random_on_hemisphere(const vec3& normal) {
     else
         return -on_unit_sphere;
 }
+
 
 
 // Random point inside unit disk (for depth of field)
@@ -153,10 +162,12 @@ inline vec3 random_in_unit_disk() {
 }
 
 
+
 // Reflect vector across normal n
 inline vec3 reflect(const vec3& v, const vec3& n) {
     return v - 2*dot(v,n)*n;
 }
+
 
 
 // Refract vector
