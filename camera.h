@@ -1,42 +1,204 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "vec3.h"
-#include "ray.h"
-#include <cmath>
+#include "wicked.h"
+#include "hittable.h"
+#include "material.h"
+#include <thread>
+#include <vector>
+#include <mutex>
 
+
+// REQUIREMENT: Camera with configurable position, orientation, and field of view
+// REQUIREMENT: Anti-aliasing, Defocus blur/depth of field
 class camera {
 public:
-    point3 origin;
-    point3 lower_left_corner;
-    vec3 horizontal;
-    vec3 vertical;
+    double aspect_ratio = 1.0;
+    int image_width = 100;
+    int samples_per_pixel = 10;  // Anti-aliasing
+    int max_depth = 10;
+    color background = color(0,0,0);
+
+
+    double vfov = 90;  // Field of view
+    point3 lookfrom = point3(0,0,0);  // Configurable position
+    point3 lookat = point3(0,0,-1);   // Configurable orientation
+    vec3 vup = vec3(0,1,0);           
+
+
+    double defocus_angle = 0;  // Defocus blur/depth of field
+    double focus_dist = 10;
+
+
+
+
+    void render(const hittable& world) {
+        initialize();
+
+        std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+
+        // REQUIREMENT: Parallelization, using multiple threads
+        const int num_threads = std::thread::hardware_concurrency();
+        std::vector<std::thread> threads;
+        std::vector<std::vector<color>> pixel_colors(image_height, 
+                                                     std::vector<color>(image_width));
+        std::mutex progress_mutex;
+        int completed_rows = 0;
+
+        auto render_rows = [&](int start_row, int end_row) {
+            for (int j = start_row; j < end_row; j++) {
+                for (int i = 0; i < image_width; i++) {
+                    color pixel_color(0,0,0);
+                    for (int s = 0; s < samples_per_pixel; s++) {
+                        ray r = get_ray(i, j);
+                        pixel_color += ray_color(r, max_depth, world);
+                    }
+                    pixel_colors[j][i] = pixel_samples_scale * pixel_color;
+                }
+                
+
+                // For progress on rendering:
+                {
+                    std::lock_guard<std::mutex> lock(progress_mutex);
+                    completed_rows++;
+                    std::clog << "\rScanlines remaining: " << (image_height - completed_rows) 
+                             << ' ' << std::flush;
+                }
+            }
+        };
+
+
+
+        // Distributes row across threads
+        int rows_per_thread = image_height / num_threads;
+        for (int t = 0; t < num_threads; t++) {
+            int start_row = t * rows_per_thread;
+            int end_row = (t == num_threads - 1) ? image_height : start_row + rows_per_thread;
+            threads.emplace_back(render_rows, start_row, end_row);
+        }
+
+        for (auto& thread : threads) {
+            thread.join();
+        }
+
+
+        // Write out all pixels
+        for (int j = 0; j < image_height; j++) {
+            for (int i = 0; i < image_width; i++) {
+                write_color(std::cout, pixel_colors[j][i]);
+            }
+        }
+
+        std::clog << "\rDone.                 \n";
+    }
+
+
+
+private:
+    int image_height;
+    double pixel_samples_scale;
+    point3 center;
+    point3 pixel00_loc;
+    vec3 pixel_delta_u;
+    vec3 pixel_delta_v;
     vec3 u, v, w;
+    vec3 defocus_disk_u;
+    vec3 defocus_disk_v;
 
-    camera(
-        point3 lookfrom,
-        point3 lookat,
-        vec3 vup,
-        double vfov, // vertical field-of-view in degrees
-        double aspect_ratio
-    ) {
-        auto theta = vfov * M_PI / 180.0;
-        auto h = tan(theta/2);
-        auto viewport_height = 2.0 * h;
-        auto viewport_width = aspect_ratio * viewport_height;
 
+
+
+    // Calculates all camera parametes
+    void initialize() {
+        image_height = int(image_width / aspect_ratio);
+        image_height = (image_height < 1) ? 1 : image_height;
+
+        pixel_samples_scale = 1.0 / samples_per_pixel;
+
+        center = lookfrom;
+
+
+        // Viewport dimensions
+        auto theta = degrees_to_radians(vfov);
+        auto h = std::tan(theta/2);
+        auto viewport_height = 2 * h * focus_dist;
+        auto viewport_width = viewport_height * (double(image_width)/image_height);
+
+
+        // Camera Vectors
         w = unit_vector(lookfrom - lookat);
         u = unit_vector(cross(vup, w));
         v = cross(w, u);
 
-        origin = lookfrom;
-        horizontal = viewport_width * u;
-        vertical = viewport_height * v;
-        lower_left_corner = origin - horizontal/2 - vertical/2 - w;
+        vec3 viewport_u = viewport_width * u;
+        vec3 viewport_v = viewport_height * -v;
+
+
+        // Pixel spacing
+        pixel_delta_u = viewport_u / image_width;
+        pixel_delta_v = viewport_v / image_height;
+
+        auto viewport_upper_left = center - (focus_dist * w) - viewport_u/2 - viewport_v/2;
+        pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+
+        auto defocus_radius = focus_dist * std::tan(degrees_to_radians(defocus_angle / 2));
+        defocus_disk_u = u * defocus_radius;
+        defocus_disk_v = v * defocus_radius;
+    }
+    
+    
+
+    // Generates random ray for pixel
+    ray get_ray(int i, int j) const {
+        auto offset = sample_square();
+        auto pixel_sample = pixel00_loc
+                          + ((i + offset.x()) * pixel_delta_u)
+                          + ((j + offset.y()) * pixel_delta_v);
+
+        // Ray origin
+        auto ray_origin = (defocus_angle <= 0) ? center : defocus_disk_sample();
+        auto ray_direction = pixel_sample - ray_origin;
+        auto ray_time = random_double();  // REQUIREMENT: Motion blur
+
+        return ray(ray_origin, ray_direction, ray_time);
     }
 
-    ray get_ray(double s, double t) const {
-        return ray(origin, lower_left_corner + s*horizontal + t*vertical - origin);
+
+
+    // Random offset within square for anti-aliasing
+    vec3 sample_square() const {
+        return vec3(random_double() - 0.5, random_double() - 0.5, 0);
+    }
+
+    point3 defocus_disk_sample() const {
+        auto p = random_in_unit_disk();
+        return center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
+    }
+
+
+
+    // Recursively trace ray through scene
+    color ray_color(const ray& r, int depth, const hittable& world) const {
+        if (depth <= 0)
+            return color(0,0,0);
+
+        hit_record rec;
+
+        // if missed objects, return background color
+        if (!world.hit(r, interval(0.001, infinity), rec))
+            return background;
+
+        ray scattered;
+        color attenuation;
+        color color_from_emission = rec.mat->emitted(rec.u, rec.v, rec.p);
+
+        // if surface does not scatter, retun emission
+        if (!rec.mat->scatter(r, rec, attenuation, scattered))
+            return color_from_emission;
+
+        color color_from_scatter = attenuation * ray_color(scattered, depth-1, world);
+
+        return color_from_emission + color_from_scatter;
     }
 };
 

@@ -1,156 +1,219 @@
-#include "vec3.h"
-#include "ray.h"
-#include "sphere.h"
-#include "triangle.h"
+#include "wicked.h"
 #include "camera.h"
-#include "material.h"
+#include "hittable_list.h"
+#include "sphere.h"
+#include "quad.h"
+#include "triangle.h"
 #include "bvh.h"
-#include "mesh.h"
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <memory>
-#include <cmath>
-#include <limits>
-#include <cstdlib>
-#include <ctime>
+#include "material.h"
+#include "texture.h"
 
-color ray_color(const ray& r, const hittable& world, int depth) {
-    hit_record rec;
 
-    // If we've exceeded the ray bounce limit, no more light is gathered
-    if (depth <= 0)
-        return color(0,0,0);
 
-    // Check for intersection with any object
-    if (world.hit(r, 0.001, std::numeric_limits<double>::infinity(), rec)) {
-        ray scattered;
-        color attenuation;
-        color emitted = rec.mat_ptr->emitted();
-        
-        if (rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
-            return emitted + attenuation * ray_color(scattered, world, depth-1);
-        }
-        return emitted;
-    }
-
-    // Background gradient
-    vec3 unit_direction = unit_vector(r.direction());
-    auto t = 0.5*(unit_direction.y() + 1.0);
-    return (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0);
-}
-
-void write_color(std::ostream& out, color pixel_color, int samples_per_pixel) {
-    auto r = pixel_color.x();
-    auto g = pixel_color.y();
-    auto b = pixel_color.z();
-
-    auto scale = 1.0 / samples_per_pixel;
-    r = sqrt(scale * r);
-    g = sqrt(scale * g);
-    b = sqrt(scale * b);
-
-    out << static_cast<int>(256 * std::clamp(r, 0.0, 0.999)) << ' '
-        << static_cast<int>(256 * std::clamp(g, 0.0, 0.999)) << ' '
-        << static_cast<int>(256 * std::clamp(b, 0.0, 0.999)) << '\n';
-}
-
+// REQUIREMENT: Visible features shown in Glinda's pink bubble scene
 int main() {
-    // Seed random number generator
-    srand(static_cast<unsigned>(time(0)));
+    // REQUIREMENT: Object instancing: world container
+    hittable_list world;
 
-    // Image settings
-    const auto aspect_ratio = 16.0 / 9.0;
-    const int image_width = 800;
-    const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 100;  // Anti-aliasing samples
-    const int max_depth = 50;
 
-    // World
-    std::vector<std::shared_ptr<hittable>> objects;
-
-    // Materials
-    auto ground_material = std::make_shared<lambertian>(color(0.5, 0.5, 0.5));
-    auto bubble_material = std::make_shared<dielectric>(1.5, color(1.0, 0.7, 0.9)); // Pink tinted glass
-    auto sparkle_material = std::make_shared<metal>(color(1.0, 0.9, 1.0), 0.1);
-    auto light_material = std::make_shared<emissive>(color(1.0, 1.0, 1.0), 2.0);
-
-    // Ground
-    objects.push_back(std::make_shared<sphere>(point3(0, -1000, 0), 1000, ground_material));
-
-    // Main bubble (Glinda's bubble)
-    objects.push_back(std::make_shared<sphere>(point3(0, 1, 0), 1.0, bubble_material));
+    // REQUIREMENT: Texture loading: Load image textures from files
+    auto pink_gradient = make_shared<image_texture>("textures/pink_gradient.jpg");
+    auto sparkle_texture = make_shared<image_texture>("textures/sparkle.png");
     
-    // Inner glow sphere
-    auto inner_glow = std::make_shared<emissive>(color(1.0, 0.8, 0.95), 0.3);
-    objects.push_back(std::make_shared<sphere>(point3(0, 1, 0), 0.95, inner_glow));
 
-    // Some sparkles around the bubble cause it's magical
-    for (int i = 0; i < 20; i++) {
-        double theta = 2.0 * M_PI * random_double();
-        double phi = M_PI * random_double();
-        double r = 1.2 + random_double() * 0.3;
+
+    // REQUIREMENT: Dielectric material: outter glass-like bubble
+    auto bubble_material = make_shared<dielectric>(1.3);
+    
+
+
+    // REQUIREMENT: Diffuse material with texture: inner bubble uses pink gradient
+    auto textured_pink = make_shared<lambertian>(pink_gradient);
+    
+
+
+    // Main bubble sphere, REQUIREMENT: Ray/sphere intersections & textured spheres
+    auto bubble_center = point3(0, 1.0, 0);
+    auto bubble_radius = 1.0;
+    
+
+    // Outer glass layer, REQUIREMENT: Dielectric material
+    world.add(make_shared<sphere>(bubble_center, bubble_radius, bubble_material));
+    
+
+    // Inner textured layer, REQUIREMENT: Textured spheres with pink gradient
+    world.add(make_shared<sphere>(bubble_center, bubble_radius - 0.02, textured_pink));
+    
+
+
+    // REQUIREMENT: Textured spheres with sparkle texture (the far right shpere)
+    auto sparkle_material = make_shared<lambertian>(sparkle_texture);
+    world.add(make_shared<sphere>(point3(2.2, 0.9, -0.8), 0.9, sparkle_material));
+    
+
+
+    // REQUIREMENT: Specular material, reflective metal (seen on small sphere in the front)
+    auto shiny_pink = make_shared<metal>(color(1.0, 0.7, 0.9), 0.1);
+    
+
+
+    // REQUIREMENT: Motion blur, floating sparkles around the main sphere
+    for (int i = 0; i < 30; i++) {
+        double theta = random_double(0, 2*pi);
+        double phi = random_double(0, pi);
+        double r = bubble_radius + random_double(0.1, 0.5);
         
-        double x = r * sin(phi) * cos(theta);
-        double y = 1.0 + r * sin(phi) * sin(theta);
-        double z = r * cos(phi);
+        auto x = r * std::sin(phi) * std::cos(theta);
+        auto y = 1.0 + r * std::cos(phi);
+        auto z = r * std::sin(phi) * std::sin(theta);
         
-        objects.push_back(std::make_shared<sphere>(
-            point3(x, y, z), 
-            0.03 + random_double() * 0.02, 
-            sparkle_material
+        point3 center1(x, y, z);
+        point3 center2 = center1 + vec3(random_double(-0.1, 0.1), 
+                                        random_double(-0.05, 0.05), 
+                                        random_double(-0.1, 0.1));
+        
+
+        // REQUIREMENT: Emissive materials (lights), glowing pink sparkles around main sphere
+        auto sparkle_mat = make_shared<diffuse_light>(color(1.0, 0.5, 0.95) * random_double(4, 8));
+        world.add(make_shared<sphere>(center1, center2, 0.025, sparkle_mat));
+    }
+    
+
+
+    // Ground with checker pattern, REQUIREMENT: Diffuse material
+    auto checker = make_shared<checker_texture>(0.8, color(0.1, 0.3, 0.2), color(0.15, 0.4, 0.3));
+    auto ground_mat = make_shared<lambertian>(checker);
+    world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, ground_mat));
+    
+
+
+
+    // REQUIREMENT: Quads, dark gold platform beneath main bubble with gradient texture
+    auto platform_mat = make_shared<lambertian>(color(0.4, 0.3, 0.05));
+    world.add(make_shared<quad>(point3(-2, 0, -2), vec3(4, 0, 0), vec3(0, 0, 4), platform_mat));
+    
+
+
+    // REQUIREMENT: Ray/triangle intersections with normal interpolation (smooth shading)
+    // REQUIREMENT: Textured triangles using gradient texture, star shape with connected edges (this took forever...)
+    auto textured_triangle_mat = make_shared<lambertian>(pink_gradient);
+    
+
+
+    // 5-pointed star (made of triangles) with all triangles connected
+    point3 star_center(-2.8, 1.8, -0.5);
+    double star_outer_radius = 1.1;
+    double star_inner_radius = 0.45;
+    
+    
+
+    // Generate all 10 points
+    std::vector<point3> star_points;
+    for (int i = 0; i < 10; i++) {
+        double angle = i * pi / 5 - pi/2;  
+        double radius = (i % 2 == 0) ? star_outer_radius : star_inner_radius;
+        star_points.push_back(point3(
+            star_center.x() + radius * std::cos(angle),
+            star_center.y() + radius * std::sin(angle),
+            star_center.z()
         ));
     }
+    
 
-    // Lights
-    objects.push_back(std::make_shared<sphere>(point3(3, 4, -2), 0.5, light_material));
-    objects.push_back(std::make_shared<sphere>(point3(-3, 3, 1), 0.4, light_material));
 
-    // Triangles to demonstrate triangle rendering
-    auto triangle_mat = std::make_shared<metal>(color(0.9, 0.8, 1.0), 0.3);
-    objects.push_back(std::make_shared<triangle>(
-        point3(-2, 0, -2),
-        point3(-1.5, 0.5, -2),
-        point3(-2, 0.5, -1.5),
-        triangle_mat
-    ));
-
-    // Build BVH acceleration structure
-    std::cout << "Building BVH with " << objects.size() << " objects..." << std::endl;
-    auto world = std::make_shared<bvh_node>(objects, 0, objects.size());
-
-    // Camera
-    point3 lookfrom(4, 2, 3);
-    point3 lookat(0, 1, 0);
-    vec3 vup(0, 1, 0);
-    auto vfov = 40.0;
-
-    camera cam(lookfrom, lookat, vup, vfov, aspect_ratio);
-
-    // Render
-    std::cout << "Rendering " << image_width << "x" << image_height << " image..." << std::endl;
-    std::ofstream outfile("output.ppm");
-    outfile << "P3\n" << image_width << ' ' << image_height << "\n255\n";
-
-    for (int j = image_height-1; j >= 0; --j) {
-        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
-        for (int i = 0; i < image_width; ++i) {
-            color pixel_color(0, 0, 0);
-            
-            // Anti-aliasing
-            for (int s = 0; s < samples_per_pixel; ++s) {
-                auto u = (i + random_double()) / (image_width-1);
-                auto v = (j + random_double()) / (image_height-1);
-                ray r = cam.get_ray(u, v);
-                pixel_color += ray_color(r, *world, max_depth);
-            }
-            
-            write_color(outfile, pixel_color, samples_per_pixel);
-        }
+    // Create triangles connecting center to each edge of the star
+    vec3 normal = vec3(0, 0, 1);
+    for (int i = 0; i < 10; i++) {
+        int next = (i + 1) % 10;
+        // REQUIREMENT: Textured triangles with loaded pink gradient texture
+        // REQUIREMENT: Normal interpolation
+        world.add(make_shared<triangle>(star_center, star_points[i], star_points[next], 
+                                       normal, normal, normal, textured_triangle_mat));
     }
+    
 
-    outfile.close();
-    std::cerr << "\nDone! Image saved to output.ppm\n";
+
+    // Additional small, lit triangles around the bubble for more glow
+    for (int i = 0; i < 5; i++) {
+        double angle = i * 2 * pi / 5 + pi/5;
+        double r = bubble_radius + 0.8;
+        auto x = r * std::cos(angle);
+        auto z = r * std::sin(angle);
+        
+        point3 v0(x, 0.9, z);
+        point3 v1(x + 0.1*std::cos(angle + 0.6), 1.1, z + 0.1*std::sin(angle + 0.6));
+        point3 v2(x + 0.1*std::cos(angle - 0.6), 1.1, z + 0.1*std::sin(angle - 0.6));
+        
+        vec3 n0 = unit_vector(v0 - bubble_center);
+        vec3 n1 = unit_vector(v1 - bubble_center);
+        vec3 n2 = unit_vector(v2 - bubble_center);
+        
+        auto light_triangle_mat = make_shared<diffuse_light>(color(1.0, 0.6, 0.95) * 2.5);
+        world.add(make_shared<triangle>(v0, v1, v2, n0, n1, n2, light_triangle_mat));
+    }
+    
+
+
+    // REQUIREMENT: Volume rendering, mist around bubble
+    auto boundary = make_shared<sphere>(bubble_center, bubble_radius + 0.3, 
+                                       make_shared<dielectric>(1.5));
+    world.add(make_shared<constant_medium>(boundary, 0.5, color(1.0, 0.8, 1.0)));
+    
+
+
+    // REQUIREMENT: Perlin noise, marble-textured sphere (far left sphere) 
+    // I know, very out of place for the scene, but I wanted to implement it
+    auto perlin_texture = make_shared<noise_texture>(3.0);
+    auto perlin_mat = make_shared<lambertian>(perlin_texture);
+    world.add(make_shared<sphere>(point3(-3.0, 0.7, 0.5), 0.7, perlin_mat));
+    
+
+
+    // Small sphere, REQUIREMENT: Specular material
+    world.add(make_shared<sphere>(point3(1.5, 0.3, 1), 0.3, shiny_pink));
+    
+
+
+    // REQUIREMENT: Emissive materials
+    auto light_mat = make_shared<diffuse_light>(color(1, 1, 1) * 4);
+    world.add(make_shared<sphere>(point3(4, 6, 3), 1.5, light_mat));
+    
+    
+    // Making lights more pink and brighter
+    auto fill_light = make_shared<diffuse_light>(color(1.0, 0.5, 0.9) * 3.5);
+    world.add(make_shared<quad>(point3(-3, 5, -3), vec3(2, 0, 0), vec3(0, 0, 2), fill_light));
+    
+    
+
+    // REQUIREMENT: Spatial subdivision acceleration structure (BVH)
+    world = hittable_list(make_shared<bvh_node>(world));
+
+
+    // REQUIREMENT: Camera with configurable position, orientation, and field of view
+    camera cam;
+    
+
+
+    cam.aspect_ratio = 16.0 / 9.0;
+    cam.image_width = 800;
+    cam.samples_per_pixel = 200;  // REQUIREMENT: Anti-aliasing
+    cam.max_depth = 50;
+    cam.background = color(0.4, 0.18, 0.32);  // Dark pink sky
+    
+
+    cam.vfov = 40;  // REQUIREMENT: Field of view
+    cam.lookfrom = point3(3, 2, 5);  // REQUIREMENT: Configurable position
+    cam.lookat = point3(0, 1, 0);    // REQUIREMENT: Configurable orientation
+    cam.vup = vec3(0, 1, 0);         // REQUIREMENT: Configurable orientation
+    
+
+    // REQUIREMENT: Defocus blur/depth of field
+    cam.defocus_angle = 0.3;
+    cam.focus_dist = (cam.lookfrom - cam.lookat).length();
+
+
+    // REQUIREMENT: Parallelization happens inside render()
+    cam.render(world);
     
     return 0;
 }
