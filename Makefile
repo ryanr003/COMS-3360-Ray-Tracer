@@ -35,4 +35,4 @@ view: $(OUTPUT)
 		echo "No suitable image viewer found. Please open $(OUTPUT) manually."; \
 	fi
 
-.PHONY: all render clean view help
+.PHONY: all render clean view
