@@ -133,7 +133,7 @@ private:
 
 
 
-// REQUIREMENT: Volume rendering (smoke)
+// REQUIREMENT: Volume rendering (mist)
 class isotropic : public material {
 public:
     isotropic(const color& albedo) : tex(make_shared<solid_color>(albedo)) {}

@@ -26,7 +26,7 @@ public:
     vec3 vup = vec3(0,1,0);           
 
 
-    double defocus_angle = 0;  // Defocus blur/depth of field
+    double defocus_angle = 0;  // Defocus blur/depth of field NOTE: its 0 in final render
     double focus_dist = 10;
 
 
@@ -180,6 +180,9 @@ private:
         return vec3(random_double() - 0.5, random_double() - 0.5, 0);
     }
 
+
+
+    // REQUIREMENT: Defocus blur/depth of field
     point3 defocus_disk_sample() const {
         auto p = random_in_unit_disk();
         return center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);

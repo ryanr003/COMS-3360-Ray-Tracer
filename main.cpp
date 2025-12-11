@@ -26,14 +26,14 @@ int main() {
 
 
 
-    // REQUIREMENT: Dielectric material: outter glass-like bubble
+    // REQUIREMENT: Dielectric material: outter glass-like bubble (small sphere in the front)
     auto bubble_material = make_shared<dielectric>(1.3);
     
 
 
 
 
-    // REQUIREMENT: Diffuse material with texture: inner bubble uses pink gradient
+    // REQUIREMENT: Diffuse material with texture: inner bubble in the center uses pink gradient
     auto textured_pink = make_shared<lambertian>(pink_gradient);
     
 
@@ -47,7 +47,7 @@ int main() {
 
 
 
-    // Outer glass layer, REQUIREMENT: Dielectric material
+    // Outer glass layer on main bubble, REQUIREMENT: Dielectric material
     world.add(make_shared<sphere>(bubble_center, bubble_radius, bubble_material));
     
 
@@ -59,7 +59,7 @@ int main() {
 
 
 
-    // REQUIREMENT: Textured spheres with sparkle texture (the far right shpere)
+    // REQUIREMENT: Textured sphere with sparkle texture (the far right shpere)
     auto sparkle_material = make_shared<lambertian>(sparkle_texture);
     world.add(make_shared<sphere>(point3(2.2, 0.9, -0.8), 0.9, sparkle_material));
     
@@ -181,7 +181,7 @@ int main() {
 
 
 
-    // REQUIREMENT: Volume rendering, mist around main bubble
+    // REQUIREMENT: Volume rendering, mist in main bubble
     auto boundary = make_shared<sphere>(bubble_center, bubble_radius + 0.3, 
                                        make_shared<dielectric>(1.5));
     world.add(make_shared<constant_medium>(boundary, 0.5, color(1.0, 0.8, 1.0)));

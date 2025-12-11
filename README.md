@@ -1,6 +1,6 @@
 # I have been Traced for Good: A very Wicked Ray Tracer!
 # By: Ryan Riebesehl
-# COMS 3360: Intorduction to Computer Graphics
+# COMS 3360: Introduction to Computer Graphics
 
 Fully renderable ray tracer in C++ inspired by Glindas pink bubble from the musical and movie: *Wicked*.
 
@@ -8,7 +8,7 @@ Fully renderable ray tracer in C++ inspired by Glindas pink bubble from the musi
 
 ## Requirements Met
 
-All requirements implemented with `// REQUIREMENT:` comments throughout the code (so it's eiaser for you to find requirments in the code):
+All requirements implemented with `// REQUIREMENT:` comments throughout the code (so it's easier for you to find requirements in the code):
 
 **Core Features (Top List from Piazza):**
 - Camera with configurable position, orientation, FOV (`camera.h`)
@@ -20,7 +20,7 @@ All requirements implemented with `// REQUIREMENT:` comments throughout the code
 - BVH spatial subdivision acceleration structure (`bvh.h`)
 - Diffuse, specular, dielectric materials (`material.h`)
 - Emissive materials/lights (`material.h`)
-- Was in progress of implementing/loading triangle meshes, but was removed in the requirments as said in class.
+- Was in progress of implementing/loading triangle meshes, but was removed in the requirements as said in class.
 
 **Addational Features (Bottom List from Piazza) (85 extra pts):**
 - High dynamic range (10 pts) - `color.h`
