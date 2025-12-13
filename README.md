@@ -8,7 +8,7 @@ Fully renderable ray tracer in C++ inspired by Glindas pink bubble from the musi
 
 ## Requirements Met
 
-All requirements implemented with `// REQUIREMENT:` comments throughout the code (so it's easier for you to find requirements in the code):
+All requirements implemented with `// REQUIREMENT:` comments throughout the code (so it's easier for you to find requirements in the code), main.cpp also has most of these for building the render:
 
 **Core Features (Top List from Piazza):**
 - Camera with configurable position, orientation, FOV (`camera.h`)
@@ -27,7 +27,7 @@ All requirements implemented with `// REQUIREMENT:` comments throughout the code
 - Volume rendering (10 pts) - `bvh.h` 
 - Quads (10 pts) - `quad.h`
 - Motion blur (10 pts) - `ray.h`, `sphere.h`
-- Defocus blur/DOF (10 pts) - `camera.h` 
+- Defocus blur/DOF (10 pts) - `camera.h`
 - Object instancing (10 pts) - `main.cpp`
 - Perlin noise (10 pts) - `perlin.h`
 - Parallelization (10 pts) - `camera.h` 
@@ -101,7 +101,7 @@ If you want, adjust in `main.cpp`:
 - `cam.samples_per_pixel` - Quality (default: 200)
 - `cam.max_depth` - Ray bounces (default: 50)
 - `cam.vfov` - Field of view (default: 40 degrees)
-- `cam.defocus_angle` - DOF strength
+- `cam.defocus_angle` - DOF strength 
 
 **Expected render time:** It takes 30 sec. - 1 min. on Pyrite for me
 

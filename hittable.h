@@ -14,7 +14,7 @@ public:
     vec3 normal;
     shared_ptr<material> mat;
     double t;
-    double u;  // REQUIREMENT: Textured spheres/triangles need UV coordinates
+    double u;  // Textured spheres/triangles need UV coordinates
     double v;
     bool front_face;
 

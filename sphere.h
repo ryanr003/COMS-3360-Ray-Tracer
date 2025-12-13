@@ -77,7 +77,7 @@ private:
 
 
 
-    // REQUIREMENT: UV mapping for textured spheres
+    // UV mapping for textured spheres
     static void get_sphere_uv(const point3& p, double& u, double& v) {
         auto theta = std::acos(-p.y());
         auto phi = std::atan2(-p.z(), p.x()) + pi;

@@ -67,7 +67,7 @@ By: Ryan Riebesehl
 - Started `triangle.h` with ray-triangle intersections
 - Added Barycentric coordinate calculation for triangles
 - Added normal interpolation for smooth shading in `triangle.h`
-- Updated `hittable.h` with transformation classes
+- Updated `hittable.h` with transformation classes/object instancing
 - Debugged `triangle.h` barycentric edge cases
 
 ---
@@ -103,9 +103,11 @@ By: Ryan Riebesehl
 ---
 
 ## Week 12: (Dec. 1 - Dec. 7)
+- Started triangle meshes (ended up scrapping)
 - Completed `main.cpp` with full scene
-- Built 5-pointed star from textured triangles (this took a while)
+- Built 5-pointed star from textured triangles (pain and suffering)
 - Added motion-blurred glowing sparkles
+- Added parallelization rendering loop
 - Uploaded rough draft of code to GitHub  
 - Started writing report
 
@@ -113,7 +115,7 @@ By: Ryan Riebesehl
 
 ## Week 13: (Dec. 8 - Dec. 14)
 - Adjusted sparkle emission intensities
-- Updated background and floor color in `main.cpp`
+- Updated background and floor color in `main.cpp` for better visibility 
 - Added `// REQUIREMENT:` comments throughout all files
 - Finalized README
 - Finalized report

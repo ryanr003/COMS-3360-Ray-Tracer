@@ -63,7 +63,7 @@ public:
 
 
 
-    // Sample color from image at texture cooridantes (u,v)
+    // Sample color from image at texture coridantes (u,v)
     color value(double u, double v, const point3& p) const override {
         // If no texture data, return solid cyan (debug color)
         if (data == nullptr || height <= 0) 

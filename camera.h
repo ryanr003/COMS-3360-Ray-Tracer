@@ -26,7 +26,7 @@ public:
     vec3 vup = vec3(0,1,0);           
 
 
-    double defocus_angle = 0;  // Defocus blur/depth of field NOTE: its 0 in final render
+    double defocus_angle = 0;  // Defocus blur/depth of field
     double focus_dist = 10;
 
 
@@ -45,12 +45,12 @@ public:
                                                      std::vector<color>(image_width));
         std::mutex progress_mutex;
         int completed_rows = 0;
-
+        
         auto render_rows = [&](int start_row, int end_row) {
             for (int j = start_row; j < end_row; j++) {
                 for (int i = 0; i < image_width; i++) {
                     color pixel_color(0,0,0);
-                    for (int s = 0; s < samples_per_pixel; s++) {
+                    for (int s = 0; s < samples_per_pixel; s++) { //REQUIREMENT: Anti-aliasing
                         ray r = get_ray(i, j);
                         pixel_color += ray_color(r, max_depth, world);
                     }
