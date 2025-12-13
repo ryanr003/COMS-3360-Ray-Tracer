@@ -13,27 +13,27 @@ Fully renderable ray tracer in C++ inspired by Glindas pink bubble from the musi
 All requirements implemented with `// REQUIREMENT:` comments throughout the code (so it's easier for you to find requirements in the code), main.cpp also has most of these for building the render:
 
 **Core Features (Top List from Piazza):**
-- Camera with configurable position, orientation, FOV (`camera.h`)
-- Anti-aliasing (`camera.h`)
+- Camera with configurable position, orientation, FOV (`camera.h`, `main.cpp`)
+- Anti-aliasing (`camera.h`, `main.cpp`)
 - Ray/sphere intersections (`sphere.h`)
 - Ray/triangle intersections (`triangle.h`)
-- Texture loading from files (`texture.h`)
-- Textured spheres and triangles (`sphere.h`, `triangle.h`)
-- BVH spatial subdivision acceleration structure (`bvh.h`)
-- Diffuse, specular, dielectric materials (`material.h`)
-- Emissive materials/lights (`material.h`)
+- Texture loading from files (`texture.h`, `main.cpp`)
+- Textured spheres and triangles (`sphere.h`, `triangle.h`, `main.cpp`)
+- BVH spatial subdivision acceleration structure (`bvh.h`, `aabb.h`, `main.cpp`)
+- Diffuse, specular, dielectric materials (`material.h`, `main.cpp`)
+- Emissive materials/lights (`material.h`, `main.cpp`)
 - Was in progress of implementing/loading triangle meshes, but was removed in the requirements as said in class.
 
 **Addational Features (Bottom List from Piazza) (85 extra pts):**
 - High dynamic range (10 pts) - `color.h`
-- Volume rendering (10 pts) - `bvh.h` 
-- Quads (10 pts) - `quad.h`
-- Motion blur (10 pts) - `ray.h`, `sphere.h`
-- Defocus blur/DOF (10 pts) - `camera.h`
-- Object instancing (10 pts) - `main.cpp`
-- Perlin noise (10 pts) - `perlin.h`
-- Parallelization (10 pts) - `camera.h` 
-- Normal interpolation (5 pts) - `triangle.h` 
+- Volume rendering (10 pts) - `bvh.h`, `material.h`, `main.cpp` 
+- Quads (10 pts) - `quad.h`, `main.cpp`
+- Motion blur (10 pts) - `ray.h`, `sphere.h`, `camera.h`, `main.cpp`
+- Defocus blur/DOF (10 pts) - `camera.h`, `main.cpp`
+- Object instancing (10 pts) - `main.cpp`,  `hittable.h`
+- Perlin noise (10 pts) - `perlin.h`, `texture.h`, `main.cpp`
+- Parallelization (10 pts) - `camera.h`, `main.cpp` 
+- Normal interpolation (5 pts) - `triangle.h`, `main.cpp` 
 
 ## File Structure
 
