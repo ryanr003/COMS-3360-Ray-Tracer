@@ -4,9 +4,6 @@
 
 Fully renderable ray tracer in C++ inspired by Glindas pink bubble from the musical and movie: *Wicked*.
 
-
-![alt text]('/Users/ryanriebesehl/Desktop/COMS 336/output.png')
-
 ---
 
 ## Requirements Met
